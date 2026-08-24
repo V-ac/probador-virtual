@@ -1,0 +1,11 @@
+# Configuración personal del editor
+.vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Variables y secretos
+.env
+.env.*
+!.env.example
