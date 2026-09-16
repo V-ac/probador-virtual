@@ -35,6 +35,22 @@ class _TryOnPageState extends State<TryOnPage> {
   // una prenda y mostramos Cancelar / Aceptar.
   bool _prendaEnPrueba = false;
 
+  // ============================================================
+  // NUEVO:
+  // PRENDA REAL SELECCIONADA
+  // ============================================================
+  //
+  // Clothing? significa:
+  //
+  // puede contener una prenda real:
+  // Playera blanca
+  //
+  // o puede contener:
+  // null
+  //
+  // cuando todavía no hemos seleccionado ninguna.
+  Clothing? _prendaSeleccionada;
+
   // Todas las prendas cargadas desde SharedPreferences.
   List<Clothing> _prendas = [];
 
@@ -65,8 +81,12 @@ class _TryOnPageState extends State<TryOnPage> {
     // Filtramos las prendas según la categoría seleccionada.
     //
     // Ejemplo:
-    // Si _categoriaSeleccionada == 'Superior',
-    // solo quedan prendas cuya category sea 'Superior'.
+    //
+    // _categoriaSeleccionada == 'Superior'
+    //
+    // entonces solamente tendremos prendas cuya:
+    //
+    // prenda.category == 'Superior'
     final List<Clothing> prendasFiltradas = _prendas
         .where((prenda) => prenda.category == _categoriaSeleccionada)
         .toList();
@@ -88,6 +108,7 @@ class _TryOnPageState extends State<TryOnPage> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
+
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -96,12 +117,16 @@ class _TryOnPageState extends State<TryOnPage> {
 
             // Stack nos permite colocar elementos unos encima de otros.
             //
-            // Aquí tendremos:
-            // - fotografía base;
-            // - categorías;
-            // - engrane;
-            // - panel de prendas/sugerencias;
-            // - controles Cancelar/Aceptar.
+            // Aquí tenemos:
+            //
+            // - fotografía base
+            // - categorías
+            // - engrane
+            // - panel de prendas/sugerencias
+            // - Cancelar / Aceptar
+            //
+            // Más adelante también pondremos aquí
+            // la prenda encima de la fotografía.
             child: Stack(
               children: [
                 // ====================================================
@@ -126,6 +151,7 @@ class _TryOnPageState extends State<TryOnPage> {
                 Positioned(
                   left: 12,
                   top: 40,
+
                   child: Column(
                     children: [
                       // ---------------- SUPERIOR ----------------
@@ -143,8 +169,8 @@ class _TryOnPageState extends State<TryOnPage> {
                           setState(() {
                             _categoriaSeleccionada = 'Superior';
 
-                            // Cada categoría nueva empieza
-                            // mostrando sus prendas.
+                            // Cada categoría nueva comienza
+                            // mostrando "Prendas".
                             _modoPanel = 'Prendas';
                           });
                         },
@@ -176,9 +202,10 @@ class _TryOnPageState extends State<TryOnPage> {
                         icon: Icons.dry_cleaning_outlined,
                         label: 'Vestidos',
 
-                        // Visualmente mostramos "Vestidos",
-                        // pero internamente usamos "Vestido"
-                        // porque así lo guardamos en Clothing.
+                        // Visualmente mostramos "Vestidos".
+                        //
+                        // Internamente usamos "Vestido"
+                        // porque así guardamos Clothing.category.
                         selected: _categoriaSeleccionada == 'Vestido',
                         onTap: () {
                           if (_prendaEnPrueba) {
@@ -199,16 +226,19 @@ class _TryOnPageState extends State<TryOnPage> {
                 // ENGRANE / CONFIGURACIÓN
                 // ====================================================
                 //
-                // Solo lo mostramos cuando:
-                // - NO hay categoría abierta;
-                // - NO estamos probando una prenda.
+                // Solo aparece cuando:
                 //
-                // Así evitamos cambiar accidentalmente la foto base
-                // mientras estamos seleccionando ropa.
+                // NO hay categoría abierta
+                // Y
+                // NO hay una prenda en prueba.
+                //
+                // Así no podemos cambiar accidentalmente
+                // la fotografía base mientras elegimos ropa.
                 if (_categoriaSeleccionada == null && !_prendaEnPrueba)
                   Positioned(
                     top: 12,
                     right: 12,
+
                     child: IconButton(
                       onPressed: _mostrarOpcionesProbador,
                       icon: const Icon(Icons.settings),
@@ -217,19 +247,21 @@ class _TryOnPageState extends State<TryOnPage> {
                   ),
 
                 // ====================================================
-                // PANEL FLOTANTE DE PRENDAS / SUGERENCIAS
+                // PANEL FLOTANTE
+                // PRENDAS / SUGERENCIAS
                 // ====================================================
                 //
-                // Collection if:
-                // este widget solamente existe cuando hay
-                // una categoría seleccionada.
+                // Este panel solamente existe cuando
+                // hay una categoría seleccionada.
                 if (_categoriaSeleccionada != null)
                   Positioned(
                     left: 12,
                     right: 12,
                     bottom: 12,
+
                     child: Container(
                       padding: const EdgeInsets.all(14),
+
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.96),
                         borderRadius: BorderRadius.circular(18),
@@ -245,6 +277,7 @@ class _TryOnPageState extends State<TryOnPage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
+
                         children: [
                           // ========================================
                           // ENCABEZADO DEL PANEL
@@ -270,8 +303,7 @@ class _TryOnPageState extends State<TryOnPage> {
                                 ),
                               ),
 
-                              // Botón X:
-                              // cierra el panel y vuelve al estado normal.
+                              // X para cerrar el panel.
                               IconButton(
                                 onPressed: () {
                                   setState(() {
@@ -287,7 +319,7 @@ class _TryOnPageState extends State<TryOnPage> {
                           const SizedBox(height: 8),
 
                           // ========================================
-                          // DESCRIPCIÓN SEGÚN CATEGORÍA
+                          // DESCRIPCIÓN DE LA CATEGORÍA
                           // ========================================
                           Text(
                             _categoriaSeleccionada == 'Superior'
@@ -304,7 +336,8 @@ class _TryOnPageState extends State<TryOnPage> {
                           const SizedBox(height: 12),
 
                           // ========================================
-                          // SELECTOR PRENDAS / SUGERENCIAS
+                          // SELECTOR:
+                          // PRENDAS / SUGERENCIAS
                           // ========================================
                           Row(
                             children: [
@@ -355,10 +388,11 @@ class _TryOnPageState extends State<TryOnPage> {
                           const SizedBox(height: 12),
 
                           // ========================================
-                          // CONTENIDO DEL MODO "PRENDAS"
+                          // MODO PRENDAS
                           // ========================================
                           if (_modoPanel == 'Prendas')
                             prendasFiltradas.isEmpty
+                                // No hay prendas.
                                 ? const Text(
                                     'No hay prendas en esta categoría.',
                                     style: TextStyle(
@@ -366,97 +400,141 @@ class _TryOnPageState extends State<TryOnPage> {
                                       color: Colors.grey,
                                     ),
                                   )
+                                // Sí tenemos prendas.
                                 : SizedBox(
-                                    // Aumentamos un poco la altura
-                                    // porque ahora permitimos nombres
-                                    // de hasta dos líneas.
                                     height: 145,
 
+                                    // ListView.separated crea
+                                    // una lista con separación automática
+                                    // entre cada elemento.
                                     child: ListView.separated(
                                       scrollDirection: Axis.horizontal,
 
                                       itemCount: prendasFiltradas.length,
 
+                                      // Espacio entre tarjetas.
                                       separatorBuilder: (context, index) {
                                         return const SizedBox(width: 10);
                                       },
 
+                                      // ==================================
+                                      // CONSTRUCCIÓN DE CADA PRENDA
+                                      // ==================================
                                       itemBuilder: (context, index) {
-                                        // Obtenemos una prenda
-                                        // de la lista filtrada.
+                                        // Aquí obtenemos UNA prenda
+                                        // de prendasFiltradas.
+                                        //
+                                        // Ejemplo:
+                                        //
+                                        // Playera blanca
                                         final Clothing prenda =
                                             prendasFiltradas[index];
 
-                                        return Container(
-                                          width: 95,
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.shade100,
-                                            borderRadius: BorderRadius.circular(
-                                              14,
-                                            ),
+                                        // ==================================
+                                        // NUEVO:
+                                        // INKWELL HACE LA TARJETA TOCABLE
+                                        // ==================================
+
+                                        return InkWell(
+                                          // Cuando tocamos esta tarjeta...
+                                          onTap: () {
+                                            setState(() {
+                                              // Guardamos exactamente
+                                              // qué Clothing seleccionamos.
+                                              _prendaSeleccionada = prenda;
+
+                                              // Entramos al modo prueba.
+                                              _prendaEnPrueba = true;
+
+                                              // Cerramos el panel
+                                              // de categorías.
+                                              _categoriaSeleccionada = null;
+
+                                              // Lo dejamos listo
+                                              // para la próxima apertura.
+                                              _modoPanel = 'Prendas';
+                                            });
+                                          },
+
+                                          // Hace que el efecto del toque
+                                          // siga las esquinas redondeadas.
+                                          borderRadius: BorderRadius.circular(
+                                            14,
                                           ),
 
-                                          child: Column(
-                                            children: [
-                                              // -------------------
-                                              // IMAGEN
-                                              // -------------------
-                                              Expanded(
-                                                child: prenda.imagePath == null
-                                                    ? const Icon(
-                                                        Icons.checkroom,
-                                                        size: 40,
-                                                        color:
-                                                            Colors.pinkAccent,
-                                                      )
-                                                    : ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
+                                          child: Container(
+                                            width: 95,
+                                            padding: const EdgeInsets.all(8),
+
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.shade100,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+
+                                            child: Column(
+                                              children: [
+                                                // -------------------
+                                                // IMAGEN
+                                                // -------------------
+                                                Expanded(
+                                                  child:
+                                                      prenda.imagePath == null
+                                                      ? const Icon(
+                                                          Icons.checkroom,
+                                                          size: 40,
+                                                          color:
+                                                              Colors.pinkAccent,
+                                                        )
+                                                      : ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                          child: Image.file(
+                                                            File(
+                                                              prenda.imagePath!,
                                                             ),
-                                                        child: Image.file(
-                                                          File(
-                                                            prenda.imagePath!,
+                                                            width:
+                                                                double.infinity,
+                                                            fit: BoxFit.cover,
                                                           ),
-                                                          width:
-                                                              double.infinity,
-                                                          fit: BoxFit.cover,
                                                         ),
-                                                      ),
-                                              ),
-
-                                              const SizedBox(height: 6),
-
-                                              // -------------------
-                                              // NOMBRE
-                                              // -------------------
-                                              Text(
-                                                prenda.name,
-
-                                                // Permitimos hasta
-                                                // dos líneas.
-                                                maxLines: 2,
-
-                                                // Si ni con dos líneas
-                                                // cabe, usamos "...".
-                                                overflow: TextOverflow.ellipsis,
-
-                                                textAlign: TextAlign.center,
-
-                                                style: const TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w500,
                                                 ),
-                                              ),
-                                            ],
+
+                                                const SizedBox(height: 6),
+
+                                                // -------------------
+                                                // NOMBRE
+                                                // -------------------
+                                                Text(
+                                                  prenda.name,
+
+                                                  // Permitimos hasta
+                                                  // dos líneas.
+                                                  maxLines: 2,
+
+                                                  // Si todavía no cabe,
+                                                  // usamos "...".
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+
+                                                  textAlign: TextAlign.center,
+
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         );
                                       },
                                     ),
                                   )
                           // ========================================
-                          // CONTENIDO DE SUGERENCIAS
+                          // MODO SUGERENCIAS
                           // ========================================
                           else
                             const Text(
@@ -472,18 +550,21 @@ class _TryOnPageState extends State<TryOnPage> {
                   ),
 
                 // ====================================================
-                // MODO "PRENDA EN PRUEBA"
+                // PRENDA EN PRUEBA
                 // ====================================================
                 //
-                // Más adelante aquí tendremos una Clothing real.
+                // Al tocar una tarjeta real:
                 //
-                // Por ahora este estado controla solamente
-                // los botones visuales.
+                // _prendaSeleccionada = prenda
+                // _prendaEnPrueba = true
+                //
+                // Entonces aparece esta parte.
                 if (_prendaEnPrueba)
                   Positioned(
                     left: 12,
                     right: 12,
                     bottom: 12,
+
                     child: Row(
                       children: [
                         // ---------------- CANCELAR ----------------
@@ -491,7 +572,13 @@ class _TryOnPageState extends State<TryOnPage> {
                           child: OutlinedButton(
                             onPressed: () {
                               setState(() {
+                                // Salimos del modo prueba.
                                 _prendaEnPrueba = false;
+
+                                // Cancelar significa que
+                                // descartamos completamente
+                                // la prenda seleccionada.
+                                _prendaSeleccionada = null;
                               });
                             },
                             child: const Text('Cancelar'),
@@ -505,7 +592,16 @@ class _TryOnPageState extends State<TryOnPage> {
                           child: FilledButton(
                             onPressed: () {
                               setState(() {
+                                // Terminamos el modo de confirmación.
                                 _prendaEnPrueba = false;
+
+                                // IMPORTANTE:
+                                //
+                                // NO ponemos
+                                // _prendaSeleccionada = null;
+                                //
+                                // porque al aceptar queremos
+                                // conservar esa Clothing.
                               });
                             },
                             child: const Text('Aceptar'),
@@ -530,7 +626,7 @@ class _TryOnPageState extends State<TryOnPage> {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
     // Si la usuaria canceló la galería,
-    // simplemente terminamos.
+    // terminamos la función.
     if (image == null) {
       return;
     }
@@ -539,18 +635,19 @@ class _TryOnPageState extends State<TryOnPage> {
     // después de guardar correctamente la nueva.
     final String? rutaAnterior = _baseImagePath;
 
-    // Copiamos la nueva fotografía a la carpeta privada.
+    // Copiamos la fotografía a almacenamiento
+    // privado de nuestra aplicación.
     final String rutaLocal = await _guardarFotoBaseLocalmente(image);
 
-    // Guardamos la nueva ruta para futuras sesiones.
+    // Guardamos la ruta para futuras sesiones.
     await _guardarRutaFotoBase(rutaLocal);
 
     setState(() {
       _baseImagePath = rutaLocal;
     });
 
-    // Si existía una foto anterior, la eliminamos
-    // para no acumular imágenes innecesarias.
+    // Eliminamos la fotografía anterior
+    // para no acumular archivos innecesarios.
     if (rutaAnterior != null && rutaAnterior != rutaLocal) {
       final File fotoAnterior = File(rutaAnterior);
 
@@ -569,9 +666,8 @@ class _TryOnPageState extends State<TryOnPage> {
 
     // Cada nueva foto recibe un nombre diferente.
     //
-    // Esto obliga a Image.file() a detectar inmediatamente
-    // el cambio y evita el problema de caché que tuvimos
-    // al utilizar siempre "foto_base.jpg".
+    // Esto también evita el problema de caché
+    // que vimos anteriormente.
     final String nombreArchivo =
         'foto_base_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
@@ -583,7 +679,7 @@ class _TryOnPageState extends State<TryOnPage> {
   }
 
   // ============================================================
-  // GUARDAR RUTA DE FOTO BASE
+  // GUARDAR RUTA FOTO BASE
   // ============================================================
 
   Future<void> _guardarRutaFotoBase(String ruta) async {
@@ -623,12 +719,14 @@ class _TryOnPageState extends State<TryOnPage> {
       return;
     }
 
-    // Convertimos el String JSON nuevamente
-    // a una lista de datos Dart.
+    // String JSON
+    //      ↓
+    // datos Dart
     final List<dynamic> prendasDecodificadas = jsonDecode(prendasJson);
 
-    // Cada Map vuelve a convertirse
-    // en un objeto Clothing.
+    // Map
+    // ↓
+    // Clothing
     final List<Clothing> prendasCargadas = prendasDecodificadas
         .map((map) => Clothing.fromMap(map))
         .toList();
@@ -645,6 +743,7 @@ class _TryOnPageState extends State<TryOnPage> {
   void _mostrarOpcionesProbador() {
     showModalBottomSheet(
       context: context,
+
       builder: (ctx) {
         return SafeArea(
           child: Wrap(
@@ -653,10 +752,10 @@ class _TryOnPageState extends State<TryOnPage> {
                 leading: const Icon(Icons.photo_library_outlined),
                 title: const Text('Cambiar foto base'),
                 onTap: () {
-                  // Primero cerramos el menú inferior.
+                  // Cerramos primero el menú.
                   Navigator.pop(ctx);
 
-                  // Después abrimos la galería.
+                  // Abrimos después la galería.
                   _seleccionarFotoBase();
                 },
               ),
@@ -679,18 +778,20 @@ class _TryOnPageState extends State<TryOnPage> {
   }) {
     return InkWell(
       onTap: onTap,
+
       borderRadius: BorderRadius.circular(16),
 
       child: Container(
         width: 72,
+
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
 
         decoration: BoxDecoration(
-          // Si está seleccionado:
+          // Categoría seleccionada:
           // rosa.
           //
-          // Si no:
-          // blanco semitransparente.
+          // Categoría normal:
+          // blanco.
           color: selected ? Colors.pinkAccent : Colors.white.withOpacity(0.92),
 
           borderRadius: BorderRadius.circular(16),
@@ -706,6 +807,7 @@ class _TryOnPageState extends State<TryOnPage> {
 
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           children: [
             Icon(
               icon,
