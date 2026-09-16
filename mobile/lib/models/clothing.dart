@@ -6,6 +6,7 @@ class Clothing { //Estamos creando un nuevo tipo de dato llamado Clothing.
 
   final String name;
   final String? imagePath;
+  final String? category;
     /** 
     permite que al crear la prenda le demos un nombre:
 
@@ -19,9 +20,10 @@ class Clothing { //Estamos creando un nuevo tipo de dato llamado Clothing.
   Clothing({ //Esto es el constructor de la clase.
     required this.name,
     this.imagePath,
+    this.category,
   });
 
-      /**
+  /**
       Por ejemplo:
 
     Clothing(
@@ -81,6 +83,7 @@ class Clothing { //Estamos creando un nuevo tipo de dato llamado Clothing.
     return{
       'name': name,
       'imagePath': imagePath,
+      'category': category,
     };
   }
 
@@ -88,6 +91,7 @@ class Clothing { //Estamos creando un nuevo tipo de dato llamado Clothing.
     return Clothing(
       name: map['name'],
       imagePath: map['imagePath'],
+      category: map['category'],
     );
   }
 

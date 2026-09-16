@@ -110,34 +110,43 @@ class _ClosetPageState extends State<ClosetPage> {
             return;
         }
 
+        final String? categoria = await _pedirCategoriaPrenda();
+
+        if (categoria == null) {
+            return;
+        }
+
+
         final String rutaLocal = await _guardarImagenLocalmente(image);
         
         setState(() {
             _prendas.add(
-            Clothing(
-                name: nombre.trim(), //agrega el nombre que le pusimos anteriormente.
-                /**
-                trim() elimina espacios al principio y al final:
+                Clothing(
+                    name: nombre.trim(), //agrega el nombre que le pusimos anteriormente.
+                    /**
+                    trim() elimina espacios al principio y al final:
 
-                        "   Vestido azul   "
+                            "   Vestido azul   "
 
-                        se convierte en:
+                            se convierte en:
 
-                        "Vestido azul"
+                            "Vestido azul"
 
-                        Por eso también guardamos:
+                            Por eso también guardamos:
 
-                        name: nombre.trim(),
+                            name: nombre.trim(),
 
-                        en lugar de:
+                            en lugar de:
 
-                        name: nombre,
-                
-                 */
-                imagePath: rutaLocal,
-                ),
-            );
-        });
+                            name: nombre,
+                    
+                    */
+                    imagePath: rutaLocal,
+                    category: categoria,
+                    ),
+                );
+            }
+        );
         /**
         Imagen incluida dentro de la app
                 ↓
@@ -232,6 +241,43 @@ class _ClosetPageState extends State<ClosetPage> {
         //controller.dispose(); //si creamos un controlador temporal, cuando terminamos de usarlo lo limpiamos. libera los recursos usados por el controlador.
 
         return nombre;
+    }
+
+    Future<String?> _pedirCategoriaPrenda() async {
+        return showDialog<String>(
+            context: context,
+            builder: (ctx) {
+                return AlertDialog(
+                    title: const Text('Selecciona una categoría'),
+                    content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                            ListTile(
+                                leading: const Icon(Icons.checkroom),
+                                title: const Text('Superior'),
+                                onTap: () {
+                                    Navigator.pop(ctx, 'Superior');
+                                },
+                                ),
+                                ListTile(
+                                leading: const Icon(Icons.layers_outlined),
+                                title: const Text('Inferior'),
+                                onTap: () {
+                                    Navigator.pop(ctx, 'Inferior');
+                                },
+                                ),
+                                ListTile(
+                                leading: const Icon(Icons.dry_cleaning_outlined),
+                                title: const Text('Vestido'),
+                                onTap: () {
+                                    Navigator.pop(ctx, 'Vestido');
+                                },
+                            ),
+                        ],
+                    ),
+                );
+            },
+        );    
     }
 
     Future<void> _guardarPrendas() async {
