@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/closet_screen.dart';
+import 'screens/try_on_screen.dart';
 
 /* Esta es la enrtada de la aplicación 
 main()
@@ -94,6 +95,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = const [
     HomePage(),
     ClosetPage(),
+    TryOnPage(),
   ];
 
   @override
@@ -162,6 +164,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.checkroom),
             label: 'Mi Closet',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_awesome),
+            label: 'Probador',
           ),
         ],
       ),
